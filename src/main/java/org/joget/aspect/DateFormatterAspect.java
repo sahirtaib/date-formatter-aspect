@@ -42,18 +42,20 @@ public class DateFormatterAspect {
         String value = (String) args[3];
 
         String result = "";
+        String dataFormatString = "";
+        String displayFormatString = "";
 
         if (value != null && !value.isEmpty()) {
             result = value;
             try {
                 DateFormatter plugin = (DateFormatter) pjp.getTarget();
                 Locale userLocale = LocaleContextHolder.getLocale();
-                String dataFormatString = plugin.getPropertyString("dataFormat");
+                dataFormatString = plugin.getPropertyString("dataFormat");
 
                 // getFormat() is not public
                 java.lang.reflect.Method getFormatMethod = DateFormatter.class.getDeclaredMethod("getFormat");
                 getFormatMethod.setAccessible(true);
-                String displayFormatString = (String) getFormatMethod.invoke(plugin);
+                displayFormatString = (String) getFormatMethod.invoke(plugin);
 
                 if ("th".equals(userLocale.getLanguage()) && "TH".equals(userLocale.getCountry()) && !"true".equalsIgnoreCase(plugin.getPropertyString("dateStoreInUTC"))) {
                     DateTimeFormatter inputFormatter = new DateTimeFormatterBuilder()
@@ -79,7 +81,7 @@ public class DateFormatterAspect {
                     result = displayFormat.format(date);
                 }
             } catch (Exception e) {
-                LogUtil.error("DateFormatterAspect", e, "appId=" + appDef.getAppId() + ", appVersion=" + appDef.getVersion() + ", dataList.id=" + dataList.getId() + ", " + row);
+                LogUtil.error("DateFormatterAspect", e, "appId=" + appDef.getAppId() + ", appVersion=" + appDef.getVersion() + ", dataList.id=" + dataList.getId() + ", " + row + ", dataFormat=" + dataFormatString + ", displayFormat=" + displayFormatString);
             }
         }
         
