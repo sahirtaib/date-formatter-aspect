@@ -100,7 +100,9 @@ public class DateFormatterAspect {
                     result = displayFormat.format(date);
                 }
             } catch (Exception e) {
-                LogUtil.error("DateFormatterAspect", e, "appId=" + appDef.getAppId() + ", appVersion=" + appDef.getVersion() + ", dataList.id=" + dataList.getId() + ", " + row + ", dataFormat=" + dataFormatString + ", displayFormat=" + displayFormatString + ", fullUrl=" + fullUrl);
+                if (uri != null) {
+                    LogUtil.error("DateFormatterAspect", e, "appId=" + appDef.getAppId() + ", appVersion=" + appDef.getVersion() + ", dataList.id=" + dataList.getId() + ", " + row + ", dataFormat=" + dataFormatString + ", displayFormat=" + displayFormatString + ", fullUrl=" + fullUrl);
+                }                
             }
         }
         
