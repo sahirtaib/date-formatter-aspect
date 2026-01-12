@@ -15,14 +15,19 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.joget.plugin.enterprise.DateFormatter;
+import org.joget.workflow.util.WorkflowUtil;
 import org.joget.apps.datalist.model.DataList;
-import org.joget.apps.datalist.model.DataListColumn;
+// import org.joget.apps.datalist.model.DataListColumn;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.lib.DatePicker;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.joget.commons.util.LogUtil;
+import jakarta.servlet.RequestDispatcher;
 
 @Aspect
 public class DateFormatterAspect {
@@ -32,6 +37,20 @@ public class DateFormatterAspect {
 
     @Around("format()")
     public Object aroundFormat(ProceedingJoinPoint pjp) throws Throwable {
+        HttpServletRequest request = WorkflowUtil.getHttpServletRequest();
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().replacePath(null).toUriString();
+        String uri = (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
+        String queryString = request.getQueryString();
+        String fullUrl = baseUrl;
+
+        if (uri != null) {
+            fullUrl += uri;
+        }
+
+        if (queryString != null) {
+            fullUrl += "?" + queryString;
+        }
+
         AppDefinition appDef = AppUtil.getCurrentAppDefinition();
         
         // get params: [dataList, column, row, value]
@@ -81,7 +100,7 @@ public class DateFormatterAspect {
                     result = displayFormat.format(date);
                 }
             } catch (Exception e) {
-                LogUtil.error("DateFormatterAspect", e, "appId=" + appDef.getAppId() + ", appVersion=" + appDef.getVersion() + ", dataList.id=" + dataList.getId() + ", " + row + ", dataFormat=" + dataFormatString + ", displayFormat=" + displayFormatString);
+                LogUtil.error("DateFormatterAspect", e, "appId=" + appDef.getAppId() + ", appVersion=" + appDef.getVersion() + ", dataList.id=" + dataList.getId() + ", " + row + ", dataFormat=" + dataFormatString + ", displayFormat=" + displayFormatString + ", fullUrl=" + fullUrl);
             }
         }
         
